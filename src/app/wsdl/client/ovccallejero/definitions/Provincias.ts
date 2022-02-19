@@ -1,0 +1,4 @@
+
+/** Provincias */
+export interface Provincias {
+}

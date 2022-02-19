@@ -1,0 +1,5 @@
+import { CallejeroX0020DeX0020LaX0020SedeX0020ElectrónicaX0020DelX0020CatastroSoap } from "../ports/CallejeroX0020DeX0020LaX0020SedeX0020ElectrónicaX0020DelX0020CatastroSoap";
+
+export interface CallejeroX0020DeX0020LaX0020SedeX0020ElectrónicaX0020DelX0020Catastro {
+    readonly CallejeroX0020DeX0020LaX0020SedeX0020ElectrónicaX0020DelX0020CatastroSoap: CallejeroX0020DeX0020LaX0020SedeX0020ElectrónicaX0020DelX0020CatastroSoap;
+}
