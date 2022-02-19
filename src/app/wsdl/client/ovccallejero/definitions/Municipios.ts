@@ -1,4 +1,0 @@
-
-/** Municipios */
-export interface Municipios {
-}

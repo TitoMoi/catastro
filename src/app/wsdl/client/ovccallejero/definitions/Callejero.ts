@@ -1,4 +1,0 @@
-
-/** Callejero */
-export interface Callejero {
-}
