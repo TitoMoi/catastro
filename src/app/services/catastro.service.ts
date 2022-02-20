@@ -1,27 +1,125 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import * as fastxmlparser from 'fast-xml-parser';
+import { XMLParser } from 'fast-xml-parser';
+
+//Definiciones XML
+/* https://www.catastro.meh.es/ws/esquemas/esquemas.htm */
+
+//Pdf guía
+/* https://www.catastro.meh.es/ws/Webservices_Libres.pdf */
+
+//Ejemplos de ejecución sin código (datos son diferentes)
+/* http://ovc.catastro.meh.es/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx */
+
+//Ejemplos de ejecución por código
+/* http://ovc.catastro.meh.es/ovcservweb/OVCSWLocalizacionRC/OVCCallejeroCodigos.asmx */
+
+//const headers = new HttpHeaders();
+//headers.set('Cookie', 'TS01da3df4=01737a9c024fcf723d3a1a56f703a9e99afc9101eab3c8176d50b8f3226e376542b0d588b8274083b66951107b737d9b532456ed43')
 
 @Injectable({
   providedIn: 'root',
 })
 export class CatastroService {
-  provinciaUrl: string;
+  provinciaWsUrl: string;
+
+  municipioWsUrl: string;
+  viaWsUrl: string;
+  numeroWsUrl: string;
+
   constructor(private httpClient: HttpClient) {
-    this.provinciaUrl =
+    this.provinciaWsUrl =
       'http://localhost:4200/api/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/ConsultaProvincia';
+
+    this.municipioWsUrl =
+      'http://localhost:4200/api/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/ConsultaMunicipio';
+
+    this.viaWsUrl =
+      'http://localhost:4200/api/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/ConsultaVia';
+    this.numeroWsUrl =
+      'http://localhost:4200/api/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/ConsultaNumero';
   }
 
   getProvincias() {
-    //const headers = new HttpHeaders();
-    //headers.set('Cookie', 'TS01da3df4=01737a9c024fcf723d3a1a56f703a9e99afc9101eab3c8176d50b8f3226e376542b0d588b8274083b66951107b737d9b532456ed43')
-
     this.httpClient
-      .get(this.provinciaUrl, { responseType: 'text' })
+      .get(this.provinciaWsUrl, { responseType: 'text' })
       .subscribe((data: string) => {
-        const xmlParser = new fastxmlparser.XMLParser();
+        const xmlParser = new XMLParser();
         const json = xmlParser.parse(data);
         console.log(json);
       });
   }
+
+  /**
+   *
+   * @param prov the name of the province
+   * @param muni optional the name of the municipio
+   */
+  getMunicipios(prov: string, muni = '') {
+    let httpParams = new HttpParams();
+    httpParams = httpParams.set('Provincia', prov);
+    httpParams = httpParams.set('Municipio', muni);
+    this.httpClient
+      .get(this.municipioWsUrl, { responseType: 'text', params: httpParams })
+      .subscribe((data: string) => {
+        const xmlParser = new XMLParser();
+        const json = xmlParser.parse(data);
+        console.log(json);
+      });
+  }
+
+  /**
+   *
+   * @param codProv the code of the province
+   * @param codMuni optional the code of the municipio
+   * @param filtro optional the string to filter
+   */
+  postMunicipios(codProv: string, codMuni = '', filtro = '') {
+    this.httpClient
+      .post(
+        this.municipioWsUrl,
+        {
+          /* filtro, */
+          provincia: codProv,
+          municipio: codMuni,
+        },
+        { responseType: 'text' }
+      )
+      .subscribe((data: string) => {
+        const xmlParser = new XMLParser();
+        const json = xmlParser.parse(data);
+        console.log(json);
+      });
+  }
+
+  getVias(prov: string, muni: string, via = '') {
+    let httpParams = new HttpParams();
+    httpParams = httpParams.set('Provincia', prov);
+    httpParams = httpParams.set('Municipio', muni);
+    httpParams = httpParams.set('Via', via);
+    this.httpClient
+      .get(this.viaWsUrl, { responseType: 'text', params: httpParams })
+      .subscribe((data: string) => {
+        const xmlParser = new XMLParser();
+        const json = xmlParser.parse(data);
+        console.log(json);
+      });
+  }
+
+  getNumero(prov: string, muni: string, via: string, num = '0') {
+    let httpParams = new HttpParams();
+    httpParams = httpParams.set('Provincia', prov);
+    httpParams = httpParams.set('Municipio', muni);
+    httpParams = httpParams.set('Via', via);
+    httpParams = httpParams.set('Numero', num);
+    this.httpClient
+      .get(this.numeroWsUrl, { responseType: 'text', params: httpParams })
+      .subscribe((data: string) => {
+        const xmlParser = new XMLParser();
+        const json = xmlParser.parse(data);
+        console.log(json);
+      });
+  }
+
+  getRefCatastral() {}
 }
