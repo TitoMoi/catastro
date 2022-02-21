@@ -1,6 +1,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { XMLParser } from 'fast-xml-parser';
+import { Observable, of } from 'rxjs';
+import {
+  ConsultaProvinciero,
+  ConsultaProvincieroResponse,
+  Prov,
+} from '../models/consulta-provincia.interface';
 
 //Definiciones XML
 /* https://www.catastro.meh.es/ws/esquemas/esquemas.htm */
@@ -22,10 +28,11 @@ import { XMLParser } from 'fast-xml-parser';
 })
 export class CatastroService {
   provinciaWsUrl: string;
-
   municipioWsUrl: string;
   viaWsUrl: string;
   numeroWsUrl: string;
+
+  provincias$: Observable<Prov[]>;
 
   constructor(private httpClient: HttpClient) {
     this.provinciaWsUrl =
@@ -38,15 +45,20 @@ export class CatastroService {
       'http://localhost:4200/api/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/ConsultaVia';
     this.numeroWsUrl =
       'http://localhost:4200/api/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/ConsultaNumero';
+
+    this.provincias$ = new Observable<[]>();
   }
 
-  getProvincias() {
+  getProvincias(): void {
     this.httpClient
       .get(this.provinciaWsUrl, { responseType: 'text' })
       .subscribe((data: string) => {
         const xmlParser = new XMLParser();
-        const json = xmlParser.parse(data);
-        console.log(json);
+        const consultaProvinciero: ConsultaProvincieroResponse =
+          xmlParser.parse(data);
+        this.provincias$ = of(
+          consultaProvinciero.consulta_provinciero.provinciero.prov
+        );
       });
   }
 

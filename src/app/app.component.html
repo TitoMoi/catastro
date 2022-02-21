@@ -1,4 +1,17 @@
-<div class="row">
-  <div class="col">Hola</div>
-  <div class="col">Adios</div>
+<div class="container mt-5 bg-white rounded full-height">
+  <div class="row">
+    <div class="col mt-3">
+      <mat-form-field appearance="fill">
+        <mat-label>Provincias</mat-label>
+        <mat-select [(value)]="selectedProvince">
+          <mat-option
+            *ngFor="let prov of this.catastroService.provincias$ | async"
+          >
+            {{ prov.np }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="col">Adios</div>
+  </div>
 </div>
