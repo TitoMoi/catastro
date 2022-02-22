@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { CatastroService } from './services/catastro.service';
 
 @Component({
@@ -8,13 +10,31 @@ import { CatastroService } from './services/catastro.service';
 })
 export class AppComponent implements OnInit {
   title: string;
-  selectedProvince: string;
-  constructor(public catastroService: CatastroService) {
+  form: FormGroup;
+  constructor(
+    public catastroService: CatastroService,
+    private formBuilder: FormBuilder
+  ) {
     this.title = 'catastro';
-    this.selectedProvince = '';
+    this.form = this.formBuilder.group({
+      provincia: [undefined],
+      municipio: [undefined],
+    });
   }
   ngOnInit(): void {
     this.catastroService.getProvincias();
+
+    this.form.get('provincia')!.valueChanges.subscribe((prov) => {
+      this.catastroService.getMunicipios(prov);
+    });
+
+    this.form.get('municipio')!.valueChanges.subscribe((value) => {
+      console.log(value);
+    });
+  }
+
+  onSubmit() {
+    console.log(this.form.value);
   }
 
   /* this.catastroService.getMunicipios('VALENCIA'); */

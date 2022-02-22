@@ -3,6 +3,11 @@ import { Injectable } from '@angular/core';
 import { XMLParser } from 'fast-xml-parser';
 import { Observable, of } from 'rxjs';
 import {
+  ConsultaMunicipiero,
+  ConsultaMunicipieroResponse,
+  Muni,
+} from '../models/consulta-municipio.interface';
+import {
   ConsultaProvinciero,
   ConsultaProvincieroResponse,
   Prov,
@@ -33,6 +38,7 @@ export class CatastroService {
   numeroWsUrl: string;
 
   provincias$: Observable<Prov[]>;
+  municipios$: Observable<Muni[]>;
 
   constructor(private httpClient: HttpClient) {
     this.provinciaWsUrl =
@@ -46,7 +52,8 @@ export class CatastroService {
     this.numeroWsUrl =
       'http://localhost:4200/api/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/ConsultaNumero';
 
-    this.provincias$ = new Observable<[]>();
+    this.provincias$ = new Observable<Prov[]>();
+    this.municipios$ = new Observable<Muni[]>();
   }
 
   getProvincias(): void {
@@ -54,10 +61,10 @@ export class CatastroService {
       .get(this.provinciaWsUrl, { responseType: 'text' })
       .subscribe((data: string) => {
         const xmlParser = new XMLParser();
-        const consultaProvinciero: ConsultaProvincieroResponse =
+        const consultaProvincieroResponse: ConsultaProvincieroResponse =
           xmlParser.parse(data);
         this.provincias$ = of(
-          consultaProvinciero.consulta_provinciero.provinciero.prov
+          consultaProvincieroResponse.consulta_provinciero.provinciero.prov
         );
       });
   }
@@ -75,8 +82,12 @@ export class CatastroService {
       .get(this.municipioWsUrl, { responseType: 'text', params: httpParams })
       .subscribe((data: string) => {
         const xmlParser = new XMLParser();
-        const json = xmlParser.parse(data);
-        console.log(json);
+        const consultaMunicipieroResponse: ConsultaMunicipieroResponse =
+          xmlParser.parse(data);
+        console.log(consultaMunicipieroResponse);
+        this.municipios$ = of(
+          consultaMunicipieroResponse.consulta_municipiero.municipiero.muni
+        );
       });
   }
 

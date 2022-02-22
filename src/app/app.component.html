@@ -1,16 +1,30 @@
 <div class="container mt-5 bg-white rounded full-height">
   <div class="row">
     <div class="col mt-3">
-      <mat-form-field appearance="fill">
-        <mat-label>Provincias</mat-label>
-        <mat-select [(value)]="selectedProvince">
-          <mat-option
-            *ngFor="let prov of this.catastroService.provincias$ | async"
-          >
-            {{ prov.np }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="fill">
+          <mat-label>Provincias</mat-label>
+          <mat-select formControlName="provincia">
+            <mat-option
+              *ngFor="let prov of this.catastroService.provincias$ | async"
+              [value]="prov.np"
+            >
+              {{ prov.np }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Municipios</mat-label>
+          <mat-select formControlName="municipio">
+            <mat-option
+              *ngFor="let muni of this.catastroService.municipios$ | async"
+              [value]="muni.nm"
+            >
+              {{ muni.nm }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </form>
     </div>
     <div class="col">Adios</div>
   </div>
