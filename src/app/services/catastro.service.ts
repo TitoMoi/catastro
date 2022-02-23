@@ -1,23 +1,32 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { XMLParser } from 'fast-xml-parser';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import {
-  ConsultaMunicipiero,
   ConsultaMunicipieroResponse,
   Muni,
 } from '../models/consulta-municipio.interface';
 import {
-  ConsultaProvinciero,
   ConsultaProvincieroResponse,
   Prov,
 } from '../models/consulta-provincia.interface';
+import {
+  Calle,
+  ConsultaCalleResponse,
+} from '../models/consulta-calle.interface';
+import {
+  ConsultaNumeroResponse,
+  Nump,
+} from '../models/consulta-numero.interface';
 
 //Definiciones XML
 /* https://www.catastro.meh.es/ws/esquemas/esquemas.htm */
 
 //Pdf guía
 /* https://www.catastro.meh.es/ws/Webservices_Libres.pdf */
+
+//Interfaces generadas con:
+/* https://jsonformatter.org/xml-to-typescript */
 
 //Ejemplos de ejecución sin código (datos son diferentes)
 /* http://ovc.catastro.meh.es/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx */
@@ -37,8 +46,33 @@ export class CatastroService {
   viaWsUrl: string;
   numeroWsUrl: string;
 
-  provincias$: Observable<Prov[]>;
-  municipios$: Observable<Muni[]>;
+  municipios: Muni[];
+  calles: Calle[];
+  _numeros: Nump[];
+  numeros$: Subject<Nump[]>;
+
+  _provincias: Prov[];
+  provincias$: Subject<Prov[]>;
+
+  errNumeros: boolean;
+
+  get provincias() {
+    return this._provincias;
+  }
+
+  set provincias(provincias: Prov[]) {
+    this._provincias = provincias; // Set the new value
+    this.provincias$.next(provincias); // Trigger the subject, which triggers the Observable
+  }
+
+  get numeros() {
+    return this._numeros;
+  }
+
+  set numeros(numeros: Nump[]) {
+    this._numeros = numeros; // Set the new value
+    this.numeros$.next(numeros); // Trigger the subject, which triggers the Observable
+  }
 
   constructor(private httpClient: HttpClient) {
     this.provinciaWsUrl =
@@ -52,8 +86,15 @@ export class CatastroService {
     this.numeroWsUrl =
       'http://localhost:4200/api/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/ConsultaNumero';
 
-    this.provincias$ = new Observable<Prov[]>();
-    this.municipios$ = new Observable<Muni[]>();
+    this._provincias = [];
+    this.municipios = [];
+    this.calles = [];
+    this._numeros = [];
+
+    this.provincias$ = new Subject<Prov[]>();
+    this.numeros$ = new Subject<Nump[]>();
+
+    this.errNumeros = false;
   }
 
   getProvincias(): void {
@@ -63,9 +104,8 @@ export class CatastroService {
         const xmlParser = new XMLParser();
         const consultaProvincieroResponse: ConsultaProvincieroResponse =
           xmlParser.parse(data);
-        this.provincias$ = of(
-          consultaProvincieroResponse.consulta_provinciero.provinciero.prov
-        );
+        this.provincias =
+          consultaProvincieroResponse.consulta_provinciero.provinciero.prov;
       });
   }
 
@@ -84,10 +124,8 @@ export class CatastroService {
         const xmlParser = new XMLParser();
         const consultaMunicipieroResponse: ConsultaMunicipieroResponse =
           xmlParser.parse(data);
-        console.log(consultaMunicipieroResponse);
-        this.municipios$ = of(
-          consultaMunicipieroResponse.consulta_municipiero.municipiero.muni
-        );
+        this.municipios =
+          consultaMunicipieroResponse.consulta_municipiero.municipiero.muni;
       });
   }
 
@@ -111,36 +149,60 @@ export class CatastroService {
       .subscribe((data: string) => {
         const xmlParser = new XMLParser();
         const json = xmlParser.parse(data);
-        console.log(json);
       });
   }
 
-  getVias(prov: string, muni: string, via = '') {
+  getVias(prov: string, muni: string, tipoVia = '', nomVia = '') {
     let httpParams = new HttpParams();
     httpParams = httpParams.set('Provincia', prov);
     httpParams = httpParams.set('Municipio', muni);
-    httpParams = httpParams.set('Via', via);
+    httpParams = httpParams.set('TipoVia', tipoVia);
+    httpParams = httpParams.set('NombreVia', nomVia);
     this.httpClient
       .get(this.viaWsUrl, { responseType: 'text', params: httpParams })
       .subscribe((data: string) => {
         const xmlParser = new XMLParser();
-        const json = xmlParser.parse(data);
-        console.log(json);
+        const consultaCalleResponse: ConsultaCalleResponse =
+          xmlParser.parse(data);
+        this.calles = consultaCalleResponse.consulta_callejero.callejero.calle;
       });
   }
 
-  getNumero(prov: string, muni: string, via: string, num = '0') {
+  getNumero(
+    prov: string,
+    muni: string,
+    tipoVia = '',
+    nomVia: string,
+    num = '0'
+  ) {
+    this.errNumeros = false; //reset
+
     let httpParams = new HttpParams();
     httpParams = httpParams.set('Provincia', prov);
     httpParams = httpParams.set('Municipio', muni);
-    httpParams = httpParams.set('Via', via);
+    httpParams = httpParams.set('TipoVia', tipoVia);
+    httpParams = httpParams.set('NomVia', nomVia);
     httpParams = httpParams.set('Numero', num);
     this.httpClient
       .get(this.numeroWsUrl, { responseType: 'text', params: httpParams })
       .subscribe((data: string) => {
         const xmlParser = new XMLParser();
-        const json = xmlParser.parse(data);
-        console.log(json);
+        const consultaNumeroResponse: ConsultaNumeroResponse =
+          xmlParser.parse(data);
+        const control = consultaNumeroResponse.consulta_numerero.control;
+        if (control.cuerr) {
+          if (control.cunum) {
+            //Has proximity values
+
+            this.numeros =
+              consultaNumeroResponse.consulta_numerero.numerero.nump;
+          } else {
+            console.log('Voy por el else');
+            this.errNumeros = true;
+          }
+        } else {
+          this.numeros = consultaNumeroResponse.consulta_numerero.numerero.nump;
+        }
       });
   }
 

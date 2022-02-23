@@ -1,31 +1,75 @@
 <div class="container mt-5 bg-white rounded full-height">
   <div class="row">
-    <div class="col mt-3">
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="fill">
-          <mat-label>Provincias</mat-label>
-          <mat-select formControlName="provincia">
-            <mat-option
-              *ngFor="let prov of this.catastroService.provincias$ | async"
-              [value]="prov.np"
-            >
-              {{ prov.np }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Municipios</mat-label>
-          <mat-select formControlName="municipio">
-            <mat-option
-              *ngFor="let muni of this.catastroService.municipios$ | async"
-              [value]="muni.nm"
-            >
-              {{ muni.nm }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+    <div class="col-6 mt-3">
+      <form [formGroup]="form" novalidate (ngSubmit)="onSubmit()">
+        <div class="row">
+          <div class="col-6">
+            <mat-form-field appearance="fill">
+              <mat-label>Provincias</mat-label>
+              <mat-select formControlName="provincia">
+                <mat-option
+                  *ngFor="let prov of this.catastroService.provincias"
+                  [value]="prov.np"
+                >
+                  {{ prov.np }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-6" *ngIf="this.catastroService.municipios.length">
+            <mat-form-field appearance="fill">
+              <mat-label>Municipios</mat-label>
+              <mat-select formControlName="municipio">
+                <mat-option
+                  *ngFor="let muni of this.catastroService.municipios"
+                  [value]="muni.nm"
+                >
+                  {{ muni.nm }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-6" *ngIf="this.catastroService.calles.length">
+            <mat-form-field appearance="fill">
+              <mat-label>Calles</mat-label>
+              <mat-select formControlName="calle">
+                <mat-option
+                  *ngFor="let calle of this.catastroService.calles"
+                  [value]="calle.dir.nv"
+                >
+                  {{ calle.dir.nv }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-12" *ngIf="this.catastroService.errNumeros">
+            NO HAY NÚMEROS EN ESTA CALLE
+          </div>
+          <div class="col-12" *ngIf="isNumerosAvailable">
+            <div><h3>Números:</h3></div>
+            <ng-container formArrayName="numeros">
+              <div class="row">
+                <ng-container
+                  *ngFor="
+                    let numeroGroupControl of getNumerosFormArray.controls;
+                    let i = index
+                  "
+                >
+                  <span class="col-1" [formGroupName]="i">
+                    <mat-checkbox color="primary" formControlName="selected">{{
+                      numeroGroupControl.get("pnp")?.value
+                    }}</mat-checkbox>
+                  </span>
+                </ng-container>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+        <div>
+          <button id="basic" color="primary" mat-flat-button>Enviar</button>
+        </div>
       </form>
     </div>
-    <div class="col">Adios</div>
+    <div class="col-6">Adios</div>
   </div>
 </div>

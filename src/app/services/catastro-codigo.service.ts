@@ -47,7 +47,6 @@ export class CatastroCodigoService {
       .subscribe((data: string) => {
         const xmlParser = new XMLParser();
         const json = xmlParser.parse(data);
-        console.log(json);
       });
   }
 
@@ -68,7 +67,6 @@ export class CatastroCodigoService {
       .subscribe((data: string) => {
         const xmlParser = new XMLParser();
         const json = xmlParser.parse(data);
-        console.log(json);
       });
   }
 
@@ -88,7 +86,6 @@ export class CatastroCodigoService {
       .subscribe((data: string) => {
         const xmlParser = new XMLParser();
         const json = xmlParser.parse(data);
-        console.log(json);
       });
   }
 
@@ -110,7 +107,6 @@ export class CatastroCodigoService {
       .subscribe((data: string) => {
         const xmlParser = new XMLParser();
         const json = xmlParser.parse(data);
-        console.log(json);
       });
   }
 
