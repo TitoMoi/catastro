@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { XMLParser } from 'fast-xml-parser';
-import { Observable, of, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import {
   ConsultaMunicipieroResponse,
   Muni,
@@ -153,6 +153,7 @@ export class CatastroService {
   }
 
   getVias(prov: string, muni: string, tipoVia = '', nomVia = '') {
+    this.numeros = []; //reset
     let httpParams = new HttpParams();
     httpParams = httpParams.set('Provincia', prov);
     httpParams = httpParams.set('Municipio', muni);
@@ -198,12 +199,8 @@ export class CatastroService {
               'catastroService proximity',
               consultaNumeroResponse.consulta_numerero.numerero.nump
             );
-            const _nump =
-              consultaNumeroResponse.consulta_numerero.numerero.nump.filter(
-                (nump) => nump.num.pnp > num
-              );
-
-            this.numeros = [...this.numeros, ..._nump];
+            this.numeros =
+              consultaNumeroResponse.consulta_numerero.numerero.nump;
           } else {
             this.errNumeros = true;
           }
@@ -215,13 +212,9 @@ export class CatastroService {
           );
           let _nump = consultaNumeroResponse.consulta_numerero.numerero.nump;
           if (Array.isArray(_nump)) {
-            _nump =
-              consultaNumeroResponse.consulta_numerero.numerero.nump.filter(
-                (nump) => nump.num.pnp > num
-              );
-            this.numeros = [...this.numeros, ..._nump];
+            this.numeros = _nump;
           } else {
-            this.numeros = [...this.numeros, _nump];
+            this.numeros = [_nump];
           }
         }
       });

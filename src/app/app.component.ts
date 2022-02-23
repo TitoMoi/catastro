@@ -14,6 +14,8 @@ export class AppComponent implements OnInit {
   isNumerosAvailable: boolean;
   lastNumero: string;
   oldNumero: string;
+  lastRefCatastral: string;
+  oldRefCatastral: string;
   constructor(
     public catastroService: CatastroService,
     private formBuilder: FormBuilder
@@ -28,6 +30,8 @@ export class AppComponent implements OnInit {
     this.isNumerosAvailable = false;
     this.lastNumero = '0';
     this.oldNumero = '';
+    this.lastRefCatastral = '';
+    this.oldRefCatastral = '';
   }
   ngOnInit(): void {
     this.catastroService.getProvincias();
@@ -41,6 +45,11 @@ export class AppComponent implements OnInit {
     });
 
     this.form.get('calle')!.valueChanges.subscribe((calle) => {
+      this.getNumerosFormArray.clear();
+      this.lastNumero = '0'; //reset
+      this.oldNumero = ''; //reset
+      this.lastRefCatastral = ''; //reset
+      this.oldRefCatastral = ''; //reset
       this.catastroService.getNumero(
         this.getProvinciaControlValue(),
         this.getMunicipioControlValue(),
@@ -75,29 +84,38 @@ export class AppComponent implements OnInit {
 
   registerAddNumeroGroupControl() {
     this.catastroService.numeros$.subscribe((numeros: Nump[]) => {
-      console.log('appCOmponent numeros', numeros);
       for (const numero of numeros) {
-        console.log('numero', numero);
-        //skip already numeros
+        //skip numeros that we already have but check equal or greater numeros
         if (numero.num.pnp < this.lastNumero) continue;
         this.oldNumero = this.lastNumero;
         this.lastNumero = numero.num.pnp;
-        const numeroFormGroup: FormGroup = this.formBuilder.group({
-          pnp: [numero.num.pnp],
-          refCatastral: [numero.pc.pc1 + numero.pc.pc2],
-          selected: [undefined],
-        });
+        this.oldRefCatastral = this.lastRefCatastral;
+        this.lastRefCatastral = numero.pc.pc1 + numero.pc.pc2;
 
-        const fa = this.form.get('numeros') as FormArray;
-        fa.push(numeroFormGroup);
+        //Double security check, we can receive the lastNumero again
+        if (this.oldRefCatastral !== this.lastRefCatastral) {
+          //Add numeroFormGroup
+          const numeroFormGroup: FormGroup = this.formBuilder.group({
+            pnp: [numero.num.pnp],
+            refCatastral: [numero.pc.pc1 + numero.pc.pc2],
+            selected: [undefined],
+          });
+          const fa = this.form.get('numeros') as FormArray;
+          fa.push(numeroFormGroup);
+        }
       }
-      if (this.lastNumero !== this.oldNumero) {
+
+      const newNumero = this.lastNumero + 1; //We already have lastNumero, we need the next
+      if (
+        this.oldRefCatastral !== this.lastRefCatastral ||
+        this.oldNumero !== this.lastNumero
+      ) {
         this.catastroService.getNumero(
           this.getProvinciaControlValue(),
           this.getMunicipioControlValue(),
           '',
           this.getCalleControlValue(),
-          this.lastNumero + 1 //We already have lastNumero, we need the next
+          newNumero
         );
       } else {
         this.isNumerosAvailable = true;
