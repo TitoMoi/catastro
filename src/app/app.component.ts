@@ -12,6 +12,8 @@ export class AppComponent implements OnInit {
   title: string;
   form: FormGroup;
   isNumerosAvailable: boolean;
+  lastNumero: string;
+  oldNumero: string;
   constructor(
     public catastroService: CatastroService,
     private formBuilder: FormBuilder
@@ -24,6 +26,8 @@ export class AppComponent implements OnInit {
       numeros: this.formBuilder.array([]),
     });
     this.isNumerosAvailable = false;
+    this.lastNumero = '0';
+    this.oldNumero = '';
   }
   ngOnInit(): void {
     this.catastroService.getProvincias();
@@ -41,7 +45,8 @@ export class AppComponent implements OnInit {
         this.getProvinciaControlValue(),
         this.getMunicipioControlValue(),
         '',
-        calle
+        calle,
+        this.lastNumero
       );
     });
 
@@ -70,8 +75,13 @@ export class AppComponent implements OnInit {
 
   registerAddNumeroGroupControl() {
     this.catastroService.numeros$.subscribe((numeros: Nump[]) => {
-      numeros.forEach((numero) => {
-        console.log(numero.num.pnp);
+      console.log('appCOmponent numeros', numeros);
+      for (const numero of numeros) {
+        console.log('numero', numero);
+        //skip already numeros
+        if (numero.num.pnp < this.lastNumero) continue;
+        this.oldNumero = this.lastNumero;
+        this.lastNumero = numero.num.pnp;
         const numeroFormGroup: FormGroup = this.formBuilder.group({
           pnp: [numero.num.pnp],
           refCatastral: [numero.pc.pc1 + numero.pc.pc2],
@@ -80,8 +90,18 @@ export class AppComponent implements OnInit {
 
         const fa = this.form.get('numeros') as FormArray;
         fa.push(numeroFormGroup);
-      });
-      this.isNumerosAvailable = true;
+      }
+      if (this.lastNumero !== this.oldNumero) {
+        this.catastroService.getNumero(
+          this.getProvinciaControlValue(),
+          this.getMunicipioControlValue(),
+          '',
+          this.getCalleControlValue(),
+          this.lastNumero + 1 //We already have lastNumero, we need the next
+        );
+      } else {
+        this.isNumerosAvailable = true;
+      }
     });
   }
 

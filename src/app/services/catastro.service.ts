@@ -193,15 +193,36 @@ export class CatastroService {
         if (control.cuerr) {
           if (control.cunum) {
             //Has proximity values
+            //filter by number
+            console.log(
+              'catastroService proximity',
+              consultaNumeroResponse.consulta_numerero.numerero.nump
+            );
+            const _nump =
+              consultaNumeroResponse.consulta_numerero.numerero.nump.filter(
+                (nump) => nump.num.pnp > num
+              );
 
-            this.numeros =
-              consultaNumeroResponse.consulta_numerero.numerero.nump;
+            this.numeros = [...this.numeros, ..._nump];
           } else {
-            console.log('Voy por el else');
             this.errNumeros = true;
           }
         } else {
-          this.numeros = consultaNumeroResponse.consulta_numerero.numerero.nump;
+          //filter by number
+          console.log(
+            'catastroService no error',
+            consultaNumeroResponse.consulta_numerero.numerero.nump
+          );
+          let _nump = consultaNumeroResponse.consulta_numerero.numerero.nump;
+          if (Array.isArray(_nump)) {
+            _nump =
+              consultaNumeroResponse.consulta_numerero.numerero.nump.filter(
+                (nump) => nump.num.pnp > num
+              );
+            this.numeros = [...this.numeros, ..._nump];
+          } else {
+            this.numeros = [...this.numeros, _nump];
+          }
         }
       });
   }
