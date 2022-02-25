@@ -70,6 +70,17 @@
         </div>
       </form>
     </div>
-    <div class="col-6">Adios</div>
+    <div class="col-6">
+      <div *ngIf="bicos.length">
+        <div *ngFor="let bico of this.bicos">
+          {{ bico | json }}
+        </div>
+      </div>
+      <div *ngIf="rcdnps.length">
+        <div *ngFor="let rcdnp of this.rcdnps">
+          {{ rcdnp | json }}
+        </div>
+      </div>
+    </div>
   </div>
 </div>

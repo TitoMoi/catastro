@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { Nump } from './models/consulta-numero.interface';
+import { Bico } from './models/consulta-rc';
+import { Rcdnp } from './models/consulta-rc-list';
+import { CustomNumeroInterface } from './models/custom-numero';
 import { CatastroService } from './services/catastro.service';
 
 @Component({
@@ -16,6 +19,11 @@ export class AppComponent implements OnInit {
   oldNumero: string;
   lastRefCatastral: string;
   oldRefCatastral: string;
+
+  bicos: Bico[];
+
+  rcdnps: Rcdnp[];
+
   constructor(
     public catastroService: CatastroService,
     private formBuilder: FormBuilder
@@ -32,6 +40,9 @@ export class AppComponent implements OnInit {
     this.oldNumero = '';
     this.lastRefCatastral = '';
     this.oldRefCatastral = '';
+
+    this.bicos = [];
+    this.rcdnps = [];
   }
   ngOnInit(): void {
     this.catastroService.getProvincias();
@@ -60,10 +71,10 @@ export class AppComponent implements OnInit {
     });
 
     this.registerAddNumeroGroupControl();
-  }
 
-  onSubmit() {
-    console.log(this.form.value);
+    this.registerBicos();
+
+    this.registerRcdnps();
   }
 
   getProvinciaControlValue() {
@@ -123,9 +134,34 @@ export class AppComponent implements OnInit {
     });
   }
 
-  /* this.catastroService.getMunicipios('VALENCIA'); */
-  /* this.catastroService.getMunicipios('VALENCIA'); */
-  /* this.catastroService.getMunicipios('46', '246'); //TORRENT*/
-  /* this.catastroService.getViasCodigo('46', '246'); //23 AZORIN */
-  /*  this.catastroService.getNumero('46', '246', undefined, '23', '1'); //7377104YJ1677N */
+  registerBicos() {
+    this.catastroService.bico$.subscribe((bico: Bico) => {
+      this.bicos = [...this.bicos, bico];
+      console.log(this.bicos);
+    });
+  }
+
+  registerRcdnps() {
+    this.catastroService.rcdnps$.subscribe((rcdnps: Rcdnp[]) => {
+      this.rcdnps = [...this.rcdnps, ...rcdnps];
+      console.log(this.rcdnps);
+    });
+  }
+
+  onSubmit() {
+    this.bicos = []; //reset
+    this.rcdnps = []; //reset
+    const formValue = this.form.value;
+    let numeros: CustomNumeroInterface[] = formValue.numeros;
+    //Only selected
+    numeros = numeros.filter((numero) => numero.selected);
+    //Get all rc data
+    for (let numero of numeros) {
+      this.catastroService.getRefCatastral(
+        this.getProvinciaControlValue(),
+        this.getMunicipioControlValue(),
+        numero.refCatastral
+      );
+    }
+  }
 }

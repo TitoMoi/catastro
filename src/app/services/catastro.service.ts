@@ -18,6 +18,8 @@ import {
   ConsultaNumeroResponse,
   Nump,
 } from '../models/consulta-numero.interface';
+import { Bico, ConsultaDnpResponse } from '../models/consulta-rc';
+import { ConsultaDnpListResponse, Rcdnp } from '../models/consulta-rc-list';
 
 //Definiciones XML
 /* https://www.catastro.meh.es/ws/esquemas/esquemas.htm */
@@ -45,6 +47,7 @@ export class CatastroService {
   municipioWsUrl: string;
   viaWsUrl: string;
   numeroWsUrl: string;
+  refCatastralWsUrl: string;
 
   municipios: Muni[];
   calles: Calle[];
@@ -53,6 +56,30 @@ export class CatastroService {
 
   _provincias: Prov[];
   provincias$: Subject<Prov[]>;
+
+  _bico!: Bico;
+  bico$: Subject<Bico>;
+
+  get bico() {
+    return this._bico;
+  }
+
+  set bico(bico: Bico) {
+    this._bico = bico;
+    this.bico$.next(bico);
+  }
+
+  _rcdnps!: Rcdnp[];
+  rcdnps$: Subject<Rcdnp[]>;
+
+  get rcdnps() {
+    return this._rcdnps;
+  }
+
+  set rcdnps(rcdnps: Rcdnp[]) {
+    this._rcdnps = rcdnps;
+    this.rcdnps$.next(rcdnps);
+  }
 
   errNumeros: boolean;
 
@@ -86,6 +113,8 @@ export class CatastroService {
     this.numeroWsUrl =
       'http://localhost:4200/api/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/ConsultaNumero';
 
+    this.refCatastralWsUrl =
+      'http://localhost:4200/api/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/Consulta_DNPRC';
     this._provincias = [];
     this.municipios = [];
     this.calles = [];
@@ -93,6 +122,8 @@ export class CatastroService {
 
     this.provincias$ = new Subject<Prov[]>();
     this.numeros$ = new Subject<Nump[]>();
+    this.bico$ = new Subject<Bico>();
+    this.rcdnps$ = new Subject<Rcdnp[]>();
 
     this.errNumeros = false;
   }
@@ -195,10 +226,10 @@ export class CatastroService {
           if (control.cunum) {
             //Has proximity values
             //filter by number
-            console.log(
+            /*  console.log(
               'catastroService proximity',
               consultaNumeroResponse.consulta_numerero.numerero.nump
-            );
+            ); */
             this.numeros =
               consultaNumeroResponse.consulta_numerero.numerero.nump;
           } else {
@@ -206,10 +237,10 @@ export class CatastroService {
           }
         } else {
           //filter by number
-          console.log(
+          /* console.log(
             'catastroService no error',
             consultaNumeroResponse.consulta_numerero.numerero.nump
-          );
+          ); */
           let _nump = consultaNumeroResponse.consulta_numerero.numerero.nump;
           if (Array.isArray(_nump)) {
             this.numeros = _nump;
@@ -220,5 +251,26 @@ export class CatastroService {
       });
   }
 
-  getRefCatastral() {}
+  getRefCatastral(prov: string, muni: string, rc: string) {
+    let httpParams = new HttpParams();
+    httpParams = httpParams.set('Provincia', prov);
+    httpParams = httpParams.set('Municipio', muni);
+    httpParams = httpParams.set('RC', rc);
+    this.httpClient
+      .get(this.refCatastralWsUrl, { responseType: 'text', params: httpParams })
+      .subscribe((data: string) => {
+        const xmlParser = new XMLParser();
+        const refCatastralResponseUnknown = xmlParser.parse(data);
+        const isList = 'lrcdnp' in refCatastralResponseUnknown.consulta_dnp;
+        if (isList) {
+          const refCatastralListResponse: ConsultaDnpListResponse =
+            refCatastralResponseUnknown;
+          this.rcdnps = refCatastralListResponse.consulta_dnp.lrcdnp.rcdnp;
+        } else {
+          const refCatastralResponse: ConsultaDnpResponse =
+            refCatastralResponseUnknown;
+          this.bico = refCatastralResponse.consulta_dnp.bico;
+        }
+      });
+  }
 }
