@@ -1,6 +1,11 @@
 <div class="container mt-5 bg-white rounded full-height">
   <div class="row">
-    <div class="col-6 mt-3">
+    <div class="no-print">
+      <button mat-button color="primary" (click)="isVisible = !isVisible">
+        Mostrar/Ocultar Panel
+      </button>
+    </div>
+    <div class="col-12 mt-3" *ngIf="isVisible">
       <form [formGroup]="form" novalidate (ngSubmit)="onSubmit()">
         <div class="row">
           <div class="col-6">
@@ -70,17 +75,29 @@
         </div>
       </form>
     </div>
-    <div class="col-6">
+    <div class="col-12">
       <div *ngIf="bicos.length">
-        <div *ngFor="let bico of this.bicos">
-          {{ bico | json }}
+        <div *ngFor="let bico of this.bicos" class="mb-1">
+          <b
+            ><h4>{{ bico.bi.ldt }}</h4></b
+          >
+          <div>
+            Licencia de uso:
+            <h3>{{ bico.bi.debi.luso }}</h3>
+          </div>
+          <div *ngFor="let con of this.bico.lcons.cons">
+            <div *ngIf="con.dt">
+              <span class="bold-font">{{ con.lcd }}</span> - patio:
+              {{ con.dt.lourb.loint.pt }} - puerta: {{ con.dt.lourb.loint.pu }}
+            </div>
+          </div>
         </div>
       </div>
-      <div *ngIf="rcdnps.length">
+      <!-- <div *ngIf="rcdnps.length">
         <div *ngFor="let rcdnp of this.rcdnps">
-          {{ rcdnp | json }}
+          {{ rcdnp.dt.locs.lous.lourb.dir }}
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </div>

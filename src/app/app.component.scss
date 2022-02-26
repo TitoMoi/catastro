@@ -9,3 +9,13 @@
 .full-height {
   min-height: 100%;
 }
+
+.bold-font {
+  font-weight: 500;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

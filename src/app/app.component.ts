@@ -21,8 +21,9 @@ export class AppComponent implements OnInit {
   oldRefCatastral: string;
 
   bicos: Bico[];
-
   rcdnps: Rcdnp[];
+
+  isVisible: boolean;
 
   constructor(
     public catastroService: CatastroService,
@@ -43,6 +44,8 @@ export class AppComponent implements OnInit {
 
     this.bicos = [];
     this.rcdnps = [];
+
+    this.isVisible = true;
   }
   ngOnInit(): void {
     this.catastroService.getProvincias();
@@ -136,15 +139,29 @@ export class AppComponent implements OnInit {
 
   registerBicos() {
     this.catastroService.bico$.subscribe((bico: Bico) => {
-      this.bicos = [...this.bicos, bico];
-      console.log(this.bicos);
+      /* this.bicos = [...this.bicos, bico]; */
+      //Filter by selections
+      //FormSelections
+      this.bicos.push(bico);
     });
   }
 
   registerRcdnps() {
     this.catastroService.rcdnps$.subscribe((rcdnps: Rcdnp[]) => {
-      this.rcdnps = [...this.rcdnps, ...rcdnps];
-      console.log(this.rcdnps);
+      /* this.rcdnps = [...this.rcdnps, ...rcdnps];
+      console.log(this.rcdnps); */
+      for (let rcdnp of rcdnps) {
+        const rc = rcdnp.rc;
+        //Fix car with zeros in the left
+        rc.car = rc.car.toString();
+        rc.car = rc.car.padStart(4, '0');
+        console.log(rc);
+        this.catastroService.getRefCatastral(
+          this.getProvinciaControlValue(),
+          this.getMunicipioControlValue(),
+          rc.pc1 + rc.pc2 + rc.car + rc.cc1 + rc.cc2
+        );
+      }
     });
   }
 
