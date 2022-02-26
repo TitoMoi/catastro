@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { Nump } from './models/consulta-numero.interface';
-import { Bico } from './models/consulta-rc';
+import { Bico, Con } from './models/consulta-rc';
 import { Rcdnp } from './models/consulta-rc-list';
 import { CustomNumeroInterface } from './models/custom-numero';
+import { FormFilterInterface } from './models/form-filter.interface';
 import { CatastroService } from './services/catastro.service';
 
 @Component({
@@ -14,6 +15,7 @@ import { CatastroService } from './services/catastro.service';
 export class AppComponent implements OnInit {
   title: string;
   form: FormGroup;
+  formFilter: FormGroup;
   isNumerosAvailable: boolean;
   lastNumero: string;
   oldNumero: string;
@@ -36,6 +38,15 @@ export class AppComponent implements OnInit {
       calle: [undefined],
       numeros: this.formBuilder.array([]),
     });
+
+    this.formFilter = this.formBuilder.group({
+      isAparcamiento: [undefined],
+      isComercial: [undefined],
+      isAlmacen: [undefined],
+      isVivienda: [undefined],
+      isResidencial: [undefined],
+    });
+
     this.isNumerosAvailable = false;
     this.lastNumero = '0';
     this.oldNumero = '';
@@ -139,23 +150,49 @@ export class AppComponent implements OnInit {
 
   registerBicos() {
     this.catastroService.bico$.subscribe((bico: Bico) => {
-      /* this.bicos = [...this.bicos, bico]; */
       //Filter by selections
-      //FormSelections
-      this.bicos.push(bico);
+      const formFilterValue: FormFilterInterface = this.formFilter.value;
+
+      const consResult: Con[] = [];
+      for (let con of bico.lcons.cons) {
+        if (con.dt) {
+          switch (con.lcd) {
+            case 'VIVIENDA':
+              if (formFilterValue.isVivienda) consResult.push(con);
+              break;
+            case 'RESIDENCIAL':
+              if (formFilterValue.isResidencial) consResult.push(con);
+              break;
+            case 'APARCAMIENTO':
+              if (formFilterValue.isAparcamiento) consResult.push(con);
+              break;
+            case 'COMERCIAL':
+              if (formFilterValue.isComercial) consResult.push(con);
+              break;
+            case 'ALMACEN':
+              if (formFilterValue.isAlmacen) consResult.push(con);
+              break;
+            default:
+              break;
+          }
+        }
+      }
+      //Assign new cons result
+      bico.lcons.cons = consResult;
+      if (bico.lcons.cons.length) {
+        //If no length means has not passed any filter
+        this.bicos.push(bico);
+      }
     });
   }
 
   registerRcdnps() {
     this.catastroService.rcdnps$.subscribe((rcdnps: Rcdnp[]) => {
-      /* this.rcdnps = [...this.rcdnps, ...rcdnps];
-      console.log(this.rcdnps); */
       for (let rcdnp of rcdnps) {
         const rc = rcdnp.rc;
-        //Fix car with zeros in the left
+        //Fill car property with zeros in the left
         rc.car = rc.car.toString();
         rc.car = rc.car.padStart(4, '0');
-        console.log(rc);
         this.catastroService.getRefCatastral(
           this.getProvinciaControlValue(),
           this.getMunicipioControlValue(),
