@@ -16,7 +16,6 @@ export class AppComponent implements OnInit {
   title: string;
   form: FormGroup;
   formFilter: FormGroup;
-  isNumerosAvailable: boolean;
   lastNumero: string;
   oldNumero: string;
   lastRefCatastral: string;
@@ -43,11 +42,10 @@ export class AppComponent implements OnInit {
       isAparcamiento: [undefined],
       isComercial: [undefined],
       isAlmacen: [undefined],
-      isVivienda: [undefined],
-      isResidencial: [undefined],
+      isVivienda: [true],
+      isResidencial: [true],
     });
 
-    this.isNumerosAvailable = false;
     this.lastNumero = '0';
     this.oldNumero = '';
     this.lastRefCatastral = '';
@@ -142,8 +140,6 @@ export class AppComponent implements OnInit {
           this.getCalleControlValue(),
           newNumero
         );
-      } else {
-        this.isNumerosAvailable = true;
       }
     });
   }
@@ -151,37 +147,70 @@ export class AppComponent implements OnInit {
   registerBicos() {
     this.catastroService.bico$.subscribe((bico: Bico) => {
       //Filter by selections
-      const formFilterValue: FormFilterInterface = this.formFilter.value;
 
+      const formFilterValue: FormFilterInterface = this.formFilter.value;
       const consResult: Con[] = [];
-      for (let con of bico.lcons.cons) {
-        if (con.dt) {
-          switch (con.lcd) {
-            case 'VIVIENDA':
-              if (formFilterValue.isVivienda) consResult.push(con);
-              break;
-            case 'RESIDENCIAL':
-              if (formFilterValue.isResidencial) consResult.push(con);
-              break;
-            case 'APARCAMIENTO':
-              if (formFilterValue.isAparcamiento) consResult.push(con);
-              break;
-            case 'COMERCIAL':
-              if (formFilterValue.isComercial) consResult.push(con);
-              break;
-            case 'ALMACEN':
-              if (formFilterValue.isAlmacen) consResult.push(con);
-              break;
-            default:
-              break;
+      try {
+        if (Array.isArray(bico.lcons.cons)) {
+          for (let con of bico.lcons.cons) {
+            if (con.dt) {
+              switch (con.lcd) {
+                case 'VIVIENDA':
+                  if (formFilterValue.isVivienda) consResult.push(con);
+                  break;
+                case 'RESIDENCIAL':
+                  if (formFilterValue.isResidencial) consResult.push(con);
+                  break;
+                case 'APARCAMIENTO':
+                  if (formFilterValue.isAparcamiento) consResult.push(con);
+                  break;
+                case 'COMERCIAL':
+                case 'COMERCIO':
+                  if (formFilterValue.isComercial) consResult.push(con);
+                  break;
+                case 'ALMACEN':
+                  if (formFilterValue.isAlmacen) consResult.push(con);
+                  break;
+                default:
+                  break;
+              }
+            }
+          }
+        } else {
+          if (bico.lcons.cons) {
+            const con = bico.lcons.cons as Con; //single
+            if (con.dt) {
+              switch (con.lcd) {
+                case 'VIVIENDA':
+                  if (formFilterValue.isVivienda) consResult.push(con);
+                  break;
+                case 'RESIDENCIAL':
+                  if (formFilterValue.isResidencial) consResult.push(con);
+                  break;
+                case 'APARCAMIENTO':
+                  if (formFilterValue.isAparcamiento) consResult.push(con);
+                  break;
+                case 'COMERCIAL':
+                case 'COMERCIO':
+                  if (formFilterValue.isComercial) consResult.push(con);
+                  break;
+                case 'ALMACEN':
+                  if (formFilterValue.isAlmacen) consResult.push(con);
+                  break;
+                default:
+                  break;
+              }
+            }
           }
         }
-      }
-      //Assign new cons result
-      bico.lcons.cons = consResult;
-      if (bico.lcons.cons.length) {
-        //If no length means has not passed any filter
-        this.bicos.push(bico);
+        //Assign new cons result
+        bico.lcons.cons = consResult;
+        if (bico.lcons.cons.length) {
+          //If no length means has not passed any filter
+          this.bicos.push(bico);
+        }
+      } catch (error) {
+        console.log(error);
       }
     });
   }
@@ -202,8 +231,17 @@ export class AppComponent implements OnInit {
     });
   }
 
-  onSubmit() {
+  onCleanBicos() {
     this.bicos = []; //reset
+  }
+
+  onOrderBicos() {
+    this.bicos = this.bicos.sort((a, b) => {
+      return a.bi.ldt < b.bi.ldt ? -1 : 1;
+    });
+  }
+
+  onSubmit() {
     this.rcdnps = []; //reset
     const formValue = this.form.value;
     let numeros: CustomNumeroInterface[] = formValue.numeros;

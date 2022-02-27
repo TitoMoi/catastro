@@ -2,8 +2,24 @@
   background-color: white;
 }
 
+.bg-gray {
+  background-color: lightgray;
+}
+
 .rounded {
   border-radius: 25px;
+}
+
+.font-20 {
+  font-size: 20px;
+}
+
+.font-18 {
+  font-size: 18px;
+}
+
+.fill-width {
+  min-width: 100%;
 }
 
 .full-height {
@@ -12,6 +28,14 @@
 
 .bold-font {
   font-weight: 500;
+}
+
+table#tableResult {
+  width: 100%;
+  td,
+  th {
+    text-align: left;
+  }
 }
 
 @media print {

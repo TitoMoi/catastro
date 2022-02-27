@@ -8,7 +8,7 @@
     <div class="col-12 mt-3" *ngIf="isVisible">
       <form [formGroup]="form" novalidate (ngSubmit)="onSubmit()">
         <div class="row">
-          <div class="col-3">
+          <div class="col-2">
             <mat-form-field appearance="fill">
               <mat-label>Provincias</mat-label>
               <mat-select formControlName="provincia">
@@ -21,7 +21,7 @@
               </mat-select>
             </mat-form-field>
           </div>
-          <div class="col-3" *ngIf="this.catastroService.municipios.length">
+          <div class="col-2" *ngIf="this.catastroService.municipios.length">
             <mat-form-field appearance="fill">
               <mat-label>Municipios</mat-label>
               <mat-select formControlName="municipio">
@@ -34,7 +34,7 @@
               </mat-select>
             </mat-form-field>
           </div>
-          <div class="col-3" *ngIf="this.catastroService.calles.length">
+          <div class="col-2" *ngIf="this.catastroService.calles.length">
             <mat-form-field appearance="fill">
               <mat-label>Calles</mat-label>
               <mat-select formControlName="calle">
@@ -48,30 +48,30 @@
             </mat-form-field>
           </div>
           <div class="col-12">
-            <h2>Filtrar solo por:</h2>
+            <h2>Mostrar los siguientes tipos:</h2>
             <form novalidate [formGroup]="formFilter">
-              <div class="row justify-content-around">
-                <div class="col">
+              <div class="row">
+                <div class="col-2">
                   <mat-checkbox color="primary" formControlName="isVivienda"
                     >Vivienda</mat-checkbox
                   >
                 </div>
-                <div class="col">
+                <div class="col-2">
                   <mat-checkbox color="primary" formControlName="isResidencial"
                     >Residencial</mat-checkbox
                   >
                 </div>
-                <div class="col">
+                <div class="col-2">
                   <mat-checkbox color="primary" formControlName="isAlmacen"
                     >Almacen</mat-checkbox
                   >
                 </div>
-                <div class="col">
+                <div class="col-2">
                   <mat-checkbox color="primary" formControlName="isComercial"
                     >Comercial</mat-checkbox
                   >
                 </div>
-                <div class="col">
+                <div class="col-2">
                   <mat-checkbox color="primary" formControlName="isAparcamiento"
                     >Aparcamiento</mat-checkbox
                   >
@@ -82,8 +82,8 @@
           <div class="col-12" *ngIf="this.catastroService.errNumeros">
             NO HAY NÚMEROS EN ESTA CALLE
           </div>
-          <div class="col-12" *ngIf="isNumerosAvailable">
-            <div><h3>Números:</h3></div>
+          <div class="col-12 mt-3" *ngIf="form.get('numeros')?.value.length">
+            <span class="p-1 font-20 bold-font">Números:</span>
             <ng-container formArrayName="numeros">
               <div class="row">
                 <ng-container
@@ -92,7 +92,7 @@
                     let i = index
                   "
                 >
-                  <span class="col-1" [formGroupName]="i">
+                  <span class="col-1 mt-1" [formGroupName]="i">
                     <mat-checkbox color="primary" formControlName="selected">{{
                       numeroGroupControl.get("pnp")?.value
                     }}</mat-checkbox>
@@ -102,32 +102,75 @@
             </ng-container>
           </div>
         </div>
-        <div>
-          <button id="basic" color="primary" mat-flat-button>Enviar</button>
-        </div>
-      </form>
-    </div>
-    <div class="col-12">
-      <div *ngIf="bicos.length">
-        <div *ngFor="let bico of this.bicos" class="mb-1">
-          <span class="bold-font">{{ bico.bi.ldt }}</span>
-          <div>
-            Licencia de uso:
-            <h3>{{ bico.bi.debi.luso }}</h3>
-          </div>
-          <div *ngFor="let con of this.bico.lcons.cons">
-            <div *ngIf="con.dt">
-              <span class="bold-font">{{ con.lcd }}</span> - planta:
-              {{ con.dt.lourb.loint.pt }} - puerta: {{ con.dt.lourb.loint.pu }}
+        <div class="mt-2">
+          <div class="row">
+            <div class="col-1">
+              <button id="basic" color="primary" mat-flat-button>Buscar</button>
+            </div>
+            <div class="col-1">
+              <button
+                id="clean"
+                mat-stroked-button
+                (click)="onCleanBicos()"
+                *ngIf="bicos.length"
+              >
+                Limpiar búsqueda
+              </button>
             </div>
           </div>
         </div>
-      </div>
-      <!-- <div *ngIf="rcdnps.length">
+      </form>
+    </div>
+    <div class="col-12 mt-3" *ngIf="bicos.length">
+      <table id="tableResult">
+        <tr class="mb-2">
+          <th class="font-18">
+            <div class="row align-items-center">
+              <span class="col-2">DIRECCIÓN</span>
+              <span class="col-2">
+                <button
+                  id="orderButton"
+                  class="no-print"
+                  mat-stroked-button
+                  (click)="onOrderBicos()"
+                >
+                  Ordenar resultados
+                </button>
+              </span>
+              <span class="col-2"
+                >Total resultados: {{ this.bicos.length }}</span
+              >
+            </div>
+          </th>
+          <th class="font-18">COMPLETADO</th>
+        </tr>
+        <tr *ngFor="let bico of this.bicos">
+          <td>
+            <div class="font-18 fill-width">
+              {{ bico.bi.ldt }}
+            </div>
+          </td>
+          <td>
+            <mat-checkbox color="primary"></mat-checkbox>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- <div>
+                Licencia de uso: <span>{{ bico.bi.debi.luso }}</span>
+              </div> -->
+<!-- <div *ngFor="let con of this.bico.lcons.cons">
+                <div *ngIf="con.dt">
+                  <span class="bold-font">{{ con.lcd }}</span> - planta:
+                  {{ con.dt.lourb.loint.pt }} - puerta: {{ con.dt.lourb.loint.pu }}
+                </div>
+              </div> -->
+
+<!-- <div *ngIf="rcdnps.length">
         <div *ngFor="let rcdnp of this.rcdnps">
           {{ rcdnp.dt.locs.lous.lourb.dir }}
         </div>
       </div> -->
-    </div>
-  </div>
-</div>

@@ -146,6 +146,7 @@ export class CatastroService {
    * @param muni optional the name of the municipio
    */
   getMunicipios(prov: string, muni = '') {
+    this.errNumeros = false;
     let httpParams = new HttpParams();
     httpParams = httpParams.set('Provincia', prov);
     httpParams = httpParams.set('Municipio', muni);
@@ -207,6 +208,7 @@ export class CatastroService {
     nomVia: string,
     num = '0'
   ) {
+    if (!nomVia) return; //security check
     this.errNumeros = false; //reset
 
     let httpParams = new HttpParams();
@@ -230,8 +232,18 @@ export class CatastroService {
               'catastroService proximity',
               consultaNumeroResponse.consulta_numerero.numerero.nump
             ); */
-            this.numeros =
-              consultaNumeroResponse.consulta_numerero.numerero.nump;
+            if (
+              Array.isArray(
+                consultaNumeroResponse.consulta_numerero.numerero.nump
+              )
+            ) {
+              this.numeros =
+                consultaNumeroResponse.consulta_numerero.numerero.nump;
+            } else {
+              this.numeros = [
+                consultaNumeroResponse.consulta_numerero.numerero.nump,
+              ];
+            }
           } else {
             this.errNumeros = true;
           }
