@@ -120,7 +120,10 @@ export class AppComponent implements OnInit {
           //Add numeroFormGroup
           const numeroFormGroup: FormGroup = this.formBuilder.group({
             pnp: [numero.num.pnp],
-            refCatastral: [numero.pc.pc1 + numero.pc.pc2],
+            refCatastral: [
+              numero.pc.pc1.toString().padStart(7, '0') +
+                numero.pc.pc2.toString().padStart(7, '0'),
+            ],
             selected: [undefined],
           });
           const fa = this.form.get('numeros') as FormArray;
@@ -233,6 +236,10 @@ export class AppComponent implements OnInit {
 
   onCleanBicos() {
     this.bicos = []; //reset
+  }
+
+  onPrint() {
+    window.print();
   }
 
   onOrderBicos() {

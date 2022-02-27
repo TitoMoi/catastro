@@ -5,7 +5,7 @@
         Mostrar/Ocultar Panel
       </button>
     </div>
-    <div class="col-12 mt-3" *ngIf="isVisible">
+    <div class="col-12 mt-3 no-print" *ngIf="isVisible">
       <form [formGroup]="form" novalidate (ngSubmit)="onSubmit()">
         <div class="row">
           <div class="col-2">
@@ -137,9 +137,17 @@
                   Ordenar resultados
                 </button>
               </span>
-              <span class="col-3"
-                >Total resultados: {{ this.bicos.length }}</span
+              <span class="col-3">
+                Total resultados: {{ this.bicos.length }}
+              </span>
+              <button
+                id="print"
+                class="no-print col-2"
+                mat-stroked-button
+                (click)="onPrint()"
               >
+                Imprimir
+              </button>
             </div>
           </th>
           <th class="font-18">COMPLETADO</th>
