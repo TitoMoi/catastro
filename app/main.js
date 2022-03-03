@@ -1,14 +1,19 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, screen } = require("electron");
 const url = require("url");
 const path = require("path");
-const { ipcMain } = require("electron/main");
 
 let mainWindow;
 
 function createWindow() {
+  const electronScreen = screen;
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    x: 0,
+    y: 0,
+    width: electronScreen.getPrimaryDisplay().workAreaSize.width,
+    height: electronScreen.getPrimaryDisplay().workAreaSize.height,
+    titleBarStyle: "default",
+    autoHideMenuBar: true,
+    center: true,
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(__dirname, "./preload.js"),
@@ -28,10 +33,9 @@ function createWindow() {
   );
 
   //Register event to use proxy
-  ipcMain.on("catastro-use-proxy", (event) => {
-    const webContents = event.sender;
-    const win = BrowserWindow.fromWebContents(webContents);
-    win.webContents.session.webRequest.onBeforeSendHeaders(
+  /* ipcMain.on("catastro-use-proxy", (event) => {
+    
+    mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
       filter,
       (details, callback) => {
         details.requestHeaders["Origin"] = "ovc.catastro.meh.es";
@@ -39,10 +43,10 @@ function createWindow() {
         callback({ requestHeaders: details.requestHeaders });
       }
     );
-  });
+  }); */
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  /*  mainWindow.webContents.openDevTools(); */
 
   mainWindow.on("closed", function () {
     mainWindow = null;

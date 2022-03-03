@@ -8,7 +8,7 @@
     <div class="col-12 mt-3 no-print" *ngIf="isVisible">
       <form [formGroup]="form" novalidate (ngSubmit)="onSubmit()">
         <div class="row">
-          <div class="col-2">
+          <div class="col-6 col-md-4">
             <mat-form-field appearance="fill">
               <mat-label>Provincias</mat-label>
               <mat-select formControlName="provincia">
@@ -21,7 +21,10 @@
               </mat-select>
             </mat-form-field>
           </div>
-          <div class="col-2" *ngIf="this.catastroService.municipios.length">
+          <div
+            class="col-6 col-md-4"
+            *ngIf="this.catastroService.municipios.length"
+          >
             <mat-form-field appearance="fill">
               <mat-label>Municipios</mat-label>
               <mat-select formControlName="municipio">
@@ -34,9 +37,12 @@
               </mat-select>
             </mat-form-field>
           </div>
-          <div class="col-2" *ngIf="this.catastroService.calles.length">
+          <div
+            class="col-6 col-md-4"
+            *ngIf="this.catastroService.calles.length"
+          >
             <mat-form-field appearance="fill">
-              <mat-label>Calles</mat-label>
+              <mat-label>Direcciones</mat-label>
               <mat-select formControlName="calle">
                 <mat-option
                   *ngFor="let calle of this.catastroService.calles"
@@ -51,27 +57,27 @@
             <h2>Mostrar los siguientes tipos:</h2>
             <form novalidate [formGroup]="formFilter">
               <div class="row">
-                <div class="col-2">
+                <div class="col-6 col-md-2">
                   <mat-checkbox color="primary" formControlName="isVivienda"
                     >Vivienda</mat-checkbox
                   >
                 </div>
-                <div class="col-2">
+                <div class="col-6 col-md-2">
                   <mat-checkbox color="primary" formControlName="isResidencial"
                     >Residencial</mat-checkbox
                   >
                 </div>
-                <div class="col-2">
+                <div class="col-6 col-md-2">
                   <mat-checkbox color="primary" formControlName="isAlmacen"
                     >Almacen</mat-checkbox
                   >
                 </div>
-                <div class="col-2">
+                <div class="col-6 col-md-2">
                   <mat-checkbox color="primary" formControlName="isComercial"
                     >Comercial</mat-checkbox
                   >
                 </div>
-                <div class="col-2">
+                <div class="col-6 col-md-2">
                   <mat-checkbox color="primary" formControlName="isAparcamiento"
                     >Aparcamiento</mat-checkbox
                   >
@@ -83,7 +89,7 @@
             NO HAY NÚMEROS EN ESTA CALLE
           </div>
           <div class="col-12 mt-3" *ngIf="form.get('numeros')?.value.length">
-            <span class="p-1 font-20 bold-font">Números:</span>
+            <span class="p-1 font-20 bold-font">Números de parcela:</span>
             <ng-container formArrayName="numeros">
               <div class="row">
                 <ng-container
@@ -104,17 +110,40 @@
         </div>
         <div class="mt-2">
           <div class="row">
-            <div class="col-1">
+            <div class="col-6 col-md-3">
               <button id="basic" color="primary" mat-flat-button>Buscar</button>
             </div>
-            <div class="col-1">
+            <div class="col-6 col-md-3">
               <button
                 id="clean"
+                type="button"
                 mat-stroked-button
                 (click)="onCleanBicos()"
                 *ngIf="bicos.length"
               >
                 Limpiar búsqueda
+              </button>
+            </div>
+            <div class="col-6 col-md-3" *ngIf="bicos.length">
+              <button
+                id="orderButton"
+                type="button"
+                class="no-print"
+                mat-stroked-button
+                (click)="onOrderBicos()"
+              >
+                Ordenar resultados
+              </button>
+            </div>
+            <div class="col-6 col-md-3" *ngIf="bicos.length">
+              <button
+                id="print"
+                type="button"
+                class="no-print"
+                mat-stroked-button
+                (click)="onPrint()"
+              >
+                Imprimir
               </button>
             </div>
           </div>
@@ -127,27 +156,9 @@
           <th class="font-18">
             <div class="row align-items-center">
               <span class="col-2">DIRECCIÓN</span>
-              <span class="col-2">
-                <button
-                  id="orderButton"
-                  class="no-print"
-                  mat-stroked-button
-                  (click)="onOrderBicos()"
-                >
-                  Ordenar resultados
-                </button>
-              </span>
               <span class="col-3">
                 Total resultados: {{ this.bicos.length }}
               </span>
-              <button
-                id="print"
-                class="no-print col-2"
-                mat-stroked-button
-                (click)="onPrint()"
-              >
-                Imprimir
-              </button>
             </div>
           </th>
           <th class="font-18">COMPLETADO</th>
