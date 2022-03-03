@@ -1,9 +1,9 @@
 const { app, BrowserWindow } = require("electron");
 const url = require("url");
 const path = require("path");
+const { ipcMain } = require("electron/main");
 
 let mainWindow;
-/* require("@electron/remote/main").initialize(); */
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -15,6 +15,10 @@ function createWindow() {
     },
   });
 
+  const filter = {
+    urls: ["http://*/*"],
+  };
+
   mainWindow.loadURL(
     url.format({
       pathname: path.join(__dirname, `../dist/catastro/index.html`),
@@ -22,6 +26,21 @@ function createWindow() {
       slashes: true,
     })
   );
+
+  //Register event to use proxy
+  ipcMain.on("catastro-use-proxy", (event) => {
+    const webContents = event.sender;
+    const win = BrowserWindow.fromWebContents(webContents);
+    win.webContents.session.webRequest.onBeforeSendHeaders(
+      filter,
+      (details, callback) => {
+        details.requestHeaders["Origin"] = "ovc.catastro.meh.es";
+        details.headers["Origin"] = "ovc.catastro.meh.es";
+        callback({ requestHeaders: details.requestHeaders });
+      }
+    );
+  });
+
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
