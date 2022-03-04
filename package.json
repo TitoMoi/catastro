@@ -2,6 +2,10 @@
   "name": "catastro",
   "version": "0.0.0",
   "main": "app/main.js",
+  "author": {
+    "name": "Moisés Medina"
+  },
+  "description": "app for the spanish catastro",
   "scripts": {
     "ng": "ng",
     "start": "electron-forge start",
@@ -53,7 +57,9 @@
   },
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "asar": true
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
