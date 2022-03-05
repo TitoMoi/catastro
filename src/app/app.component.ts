@@ -25,6 +25,8 @@ export class AppComponent implements OnInit {
   bicos: Bico[];
   rcdnps: Rcdnp[];
 
+  refCatastralSet: Set<string>;
+
   isVisible: boolean;
 
   constructor(
@@ -55,6 +57,7 @@ export class AppComponent implements OnInit {
 
     this.bicos = [];
     this.rcdnps = [];
+    this.refCatastralSet = new Set();
 
     this.isVisible = true;
   }
@@ -271,11 +274,16 @@ export class AppComponent implements OnInit {
     numeros = numeros.filter((numero) => numero.selected);
     //Get all rc data
     for (let numero of numeros) {
-      this.catastroService.getRefCatastral(
-        this.getProvinciaControlValue(),
-        this.getMunicipioControlValue(),
-        numero.refCatastral
-      );
+      //Check if we already have the ref. catastral
+      if (!this.refCatastralSet.has(numero.refCatastral)) {
+        this.refCatastralSet.add(numero.refCatastral);
+
+        this.catastroService.getRefCatastral(
+          this.getProvinciaControlValue(),
+          this.getMunicipioControlValue(),
+          numero.refCatastral
+        );
+      }
     }
   }
 }
