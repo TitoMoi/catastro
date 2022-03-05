@@ -212,7 +212,10 @@ export class AppComponent implements OnInit {
         bico.lcons.cons = consResult;
         //If no length means has not passed any filter
         if (bico.lcons.cons.length) {
-          this.bicos.push(bico);
+          //Check bico doesnt already exists
+          if (!this.bicos.some((b) => b.bi.ldt === bico.bi.ldt)) {
+            this.bicos.push(bico);
+          }
         }
       } catch (error) {
         console.log(error);

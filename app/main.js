@@ -18,13 +18,8 @@ function createWindow() {
     center: true,
     webPreferences: {
       nodeIntegration: true,
-      preload: path.join(__dirname, "./preload.js"),
     },
   });
-
-  const filter = {
-    urls: ["http://*/*"],
-  };
 
   mainWindow.loadURL(
     url.format({
@@ -33,19 +28,6 @@ function createWindow() {
       slashes: true,
     })
   );
-
-  //Register event to use proxy
-  /* ipcMain.on("catastro-use-proxy", (event) => {
-    
-    mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
-      filter,
-      (details, callback) => {
-        details.requestHeaders["Origin"] = "ovc.catastro.meh.es";
-        details.headers["Origin"] = "ovc.catastro.meh.es";
-        callback({ requestHeaders: details.requestHeaders });
-      }
-    );
-  }); */
 
   // Open the DevTools.
   /*  mainWindow.webContents.openDevTools(); */
