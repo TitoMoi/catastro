@@ -244,6 +244,7 @@ export class AppComponent implements OnInit {
 
   onCleanBicos() {
     this.bicos = []; //reset
+    this.refCatastralSet.clear();
   }
 
   onPrint() {
