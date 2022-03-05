@@ -86,7 +86,7 @@
             </form>
           </div>
           <div class="col-12" *ngIf="this.catastroService.errNumeros">
-            NO HAY NÚMEROS EN ESTA CALLE
+            NO HAY NÚMEROS DE PARCELA PARA ESTA CALLE
           </div>
           <div class="col-12 mt-3" *ngIf="form.get('numeros')?.value.length">
             <span class="p-1 font-20 bold-font">Números de parcela:</span>
@@ -110,10 +110,17 @@
         </div>
         <div class="mt-2">
           <div class="row">
-            <div class="col-6 col-md-3">
-              <button id="basic" color="primary" mat-flat-button>Buscar</button>
+            <div class="col-6 col-md-2">
+              <button
+                id="basic"
+                color="primary"
+                mat-flat-button
+                [disabled]="!!httpCounterService.pendingRequestsCount"
+              >
+                Buscar
+              </button>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md-2">
               <button
                 id="clean"
                 type="button"
@@ -124,7 +131,7 @@
                 Limpiar búsqueda
               </button>
             </div>
-            <div class="col-6 col-md-3" *ngIf="bicos.length">
+            <div class="col-6 col-md-2" *ngIf="bicos.length">
               <button
                 id="orderButton"
                 type="button"
@@ -135,7 +142,7 @@
                 Ordenar resultados
               </button>
             </div>
-            <div class="col-6 col-md-3" *ngIf="bicos.length">
+            <div class="col-6 col-md-2" *ngIf="bicos.length">
               <button
                 id="print"
                 type="button"
@@ -144,6 +151,17 @@
                 (click)="onPrint()"
               >
                 Imprimir
+              </button>
+            </div>
+            <div class="col-6 col-md-2" *ngIf="bicos.length">
+              <button
+                id="print"
+                type="button"
+                class="no-print"
+                mat-stroked-button
+                (click)="onCsvPrint()"
+              >
+                Imprimir Csv
               </button>
             </div>
           </div>

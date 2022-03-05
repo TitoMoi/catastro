@@ -6,6 +6,7 @@ import { Rcdnp } from './models/consulta-rc-list';
 import { CustomNumeroInterface } from './models/custom-numero';
 import { FormFilterInterface } from './models/form-filter.interface';
 import { CatastroService } from './services/catastro.service';
+import { HttpCounterService } from './services/http-counter.service';
 
 @Component({
   selector: 'app-root',
@@ -28,7 +29,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     public catastroService: CatastroService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    public httpCounterService: HttpCounterService
   ) {
     this.title = 'catastro';
     this.form = this.formBuilder.group({
@@ -208,8 +210,8 @@ export class AppComponent implements OnInit {
         }
         //Assign new cons result
         bico.lcons.cons = consResult;
+        //If no length means has not passed any filter
         if (bico.lcons.cons.length) {
-          //If no length means has not passed any filter
           this.bicos.push(bico);
         }
       } catch (error) {
@@ -240,6 +242,16 @@ export class AppComponent implements OnInit {
 
   onPrint() {
     window.print();
+  }
+
+  onCsvPrint() {
+    const rows = this.bicos.map((bico) => bico.bi.ldt + '\n');
+
+    const a: HTMLAnchorElement = document.createElement('a');
+    const file = new Blob(rows, { type: 'text/csv' });
+    a.href = URL.createObjectURL(file);
+    a.download = 'territorio.csv';
+    a.click();
   }
 
   onOrderBicos() {
