@@ -7,6 +7,7 @@ import { CustomNumeroInterface } from './models/custom-numero';
 import { FormFilterInterface } from './models/form-filter.interface';
 import { CatastroService } from './services/catastro.service';
 import { HttpCounterService } from './services/http-counter.service';
+import { orderBy } from 'natural-orderby';
 
 @Component({
   selector: 'app-root',
@@ -261,10 +262,14 @@ export class AppComponent implements OnInit {
     a.click();
   }
 
-  onOrderBicos() {
+  /* onOrderBicos() {
     this.bicos = this.bicos.sort((a, b) => {
       return a.bi.ldt < b.bi.ldt ? -1 : 1;
     });
+  } */
+
+  onOrderBicos() {
+    this.bicos = orderBy(this.bicos, [(v) => v.bi.ldt], ['asc']);
   }
 
   onSubmit() {
