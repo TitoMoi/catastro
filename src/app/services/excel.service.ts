@@ -44,33 +44,59 @@ export class ExcelService {
   private addSheetA4AndPortrait(workbook: ExcelJS.Workbook): ExcelJS.Worksheet {
     // create new sheet with pageSetup settings for A4 - landscape
     const worksheet = workbook.addWorksheet('Hoja1', {
-      pageSetup: { paperSize: 9, orientation: 'portrait' },
+      pageSetup: { paperSize: 9, orientation: 'landscape' },
     });
     return worksheet;
   }
 
   private addBicosToSheet(bicos: Bico[]) {
     for (let i = 0; i < bicos.length; i++) {
-      /*  this.sheet.addRow({ ldt: bicos[i].bi.ldt }); */
-      this.sheet.getRow(i).getCell(1).value = bicos[i].bi.ldt;
+      const row = this.sheet.addRow({});
+      const cell = row.getCell(1);
+      cell.value = bicos[i].bi.ldt;
     }
   }
 
   /**
-   *
-   * @param bicos the array of bicos to add in the model1
+   * dark blue foreground with white text
    */
-  createModel1(bicos: Bico[]) {
-    let workbook = this.createWorkbook();
+  private addHeaderModel1() {
+    const firstRow = this.sheet.addRow({});
+    const cell = firstRow.getCell(1);
+    cell.value = 'TERRITORI';
+    cell.style = {
+      font: {
+        size: 24,
+        bold: true,
+        color: { argb: 'FFFFFFFF' },
+        name: 'arial',
+      },
+      fill: {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '0b5394' },
+      },
+      alignment: {
+        horizontal: 'center',
+      },
+    };
+  }
 
-    workbook = this.setInitialProperties(workbook);
+  mergeCells(from: string, to: string) {
+    this.sheet.mergeCells(from + ':' + to);
+  }
 
-    workbook = this.setInitialViews(workbook);
+  autoSizeColumnWidth() {
+    this.sheet.columns.forEach((column) => {
+      const lengths = column.values!.map((v) => v!.toString().length);
+      const maxLength = Math.max(
+        ...lengths.filter((v) => typeof v === 'number')
+      );
+      column.width = maxLength;
+    });
+  }
 
-    this.sheet = this.addSheetA4AndPortrait(workbook);
-
-    this.addBicosToSheet(bicos);
-
+  writeBufferToFile(workbook: ExcelJS.Workbook) {
     workbook.xlsx.writeBuffer().then((file) => {
       let blob = new Blob([file], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -81,5 +107,32 @@ export class ExcelService {
       anchor.download = 'catastro' + '.xlsx';
       anchor.click();
     });
+  }
+  spliBicos(bicos: Bico[]) {
+    const splitedBicos: any[] = bicos.map((bico) => {
+      return bico.bi.ldt.split(' ');
+    });
+    console.log(splitedBicos);
+  }
+  /**
+   *
+   * @param bicos the array of bicos to add in the model1
+   */
+  createModel1(bicos: Bico[]) {
+    const splitBicos = this.spliBicos(bicos);
+
+    let workbook = this.createWorkbook();
+
+    workbook = this.setInitialProperties(workbook);
+
+    workbook = this.setInitialViews(workbook);
+
+    this.sheet = this.addSheetA4AndPortrait(workbook);
+    this.addHeaderModel1();
+    this.addBicosToSheet(bicos);
+    this.autoSizeColumnWidth();
+    this.mergeCells('A1', 'B1');
+
+    this.writeBufferToFile(workbook);
   }
 }
