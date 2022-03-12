@@ -8,6 +8,7 @@ import { FormFilterInterface } from './models/form-filter.interface';
 import { CatastroService } from './services/catastro.service';
 import { HttpCounterService } from './services/http-counter.service';
 import { orderBy } from 'natural-orderby';
+import { ExcelService } from './services/excel.service';
 
 @Component({
   selector: 'app-root',
@@ -33,7 +34,8 @@ export class AppComponent implements OnInit {
   constructor(
     public catastroService: CatastroService,
     private formBuilder: FormBuilder,
-    public httpCounterService: HttpCounterService
+    public httpCounterService: HttpCounterService,
+    private excelService: ExcelService
   ) {
     this.title = 'catastro';
     this.form = this.formBuilder.group({
@@ -262,11 +264,9 @@ export class AppComponent implements OnInit {
     a.click();
   }
 
-  /* onOrderBicos() {
-    this.bicos = this.bicos.sort((a, b) => {
-      return a.bi.ldt < b.bi.ldt ? -1 : 1;
-    });
-  } */
+  onSaveExcelModel1() {
+    this.excelService.createModel1(this.bicos);
+  }
 
   onOrderBicos() {
     this.bicos = orderBy(this.bicos, [(v) => v.bi.ldt], ['asc']);

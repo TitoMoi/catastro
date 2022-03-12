@@ -164,6 +164,17 @@
                 Imprimir Csv
               </button>
             </div>
+            <div class="col-6 col-md-2" *ngIf="bicos.length">
+              <button
+                id="model1"
+                type="button"
+                class="no-print"
+                mat-stroked-button
+                (click)="onSaveExcelModel1()"
+              >
+                Excel Modelo1
+              </button>
+            </div>
           </div>
         </div>
       </form>
