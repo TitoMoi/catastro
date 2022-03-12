@@ -24,6 +24,8 @@ export class AppComponent implements OnInit {
   lastRefCatastral: string;
   oldRefCatastral: string;
 
+  lastNumeros: string[];
+
   bicos: Bico[];
   rcdnps: Rcdnp[];
 
@@ -60,6 +62,9 @@ export class AppComponent implements OnInit {
 
     this.bicos = [];
     this.rcdnps = [];
+
+    this.lastNumeros = [];
+
     this.refCatastralSet = new Set();
 
     this.isVisible = true;
@@ -115,34 +120,49 @@ export class AppComponent implements OnInit {
 
   registerAddNumeroGroupControl() {
     this.catastroService.numeros$.subscribe((numeros: Nump[]) => {
-      for (const numero of numeros) {
-        //skip numeros that we already have but check equal or greater numeros
-        if (numero.num.pnp < this.lastNumero) continue;
-        this.oldNumero = this.lastNumero;
-        this.lastNumero = numero.num.pnp;
-        this.oldRefCatastral = this.lastRefCatastral;
-        this.lastRefCatastral = numero.pc.pc1 + numero.pc.pc2;
+      let isSameList = false;
+      if (
+        numeros.every((numero) => this.lastNumeros.includes(numero.num.pnp))
+      ) {
+        //its same list than before
+        isSameList = true;
+      }
 
-        //Double security check, we can receive the lastNumero again
-        if (this.oldRefCatastral !== this.lastRefCatastral) {
-          //Add numeroFormGroup
-          const numeroFormGroup: FormGroup = this.formBuilder.group({
-            pnp: [numero.num.pnp],
-            refCatastral: [
-              numero.pc.pc1.toString().padStart(7, '0') +
-                numero.pc.pc2.toString().padStart(7, '0'),
-            ],
-            selected: [undefined],
-          });
-          const fa = this.form.get('numeros') as FormArray;
-          fa.push(numeroFormGroup);
+      if (!isSameList) {
+        this.lastNumeros = numeros.map((numero) => numero.num.pnp);
+        for (const numero of numeros) {
+          //skip numeros that we already have but check equal or greater numeros
+          if (numero.num.pnp < this.lastNumero) continue;
+          this.oldNumero = this.lastNumero;
+          this.lastNumero = numero.num.pnp;
+
+          this.oldRefCatastral = this.lastRefCatastral;
+          this.lastRefCatastral = numero.pc.pc1 + numero.pc.pc2;
+
+          //Double security check, we can receive the lastNumero again
+          if (this.lastRefCatastral !== this.oldRefCatastral) {
+            //Add numeroFormGroup
+            const numeroFormGroup: FormGroup = this.formBuilder.group({
+              pnp: [numero.num.pnp],
+              refCatastral: [
+                numero.pc.pc1.toString().padStart(7, '0') +
+                  numero.pc.pc2.toString().padStart(7, '0'),
+              ],
+              selected: [undefined],
+            });
+            const fa = this.form.get('numeros') as FormArray;
+            fa.push(numeroFormGroup);
+          }
         }
       }
 
-      const newNumero = this.lastNumero + 1; //We already have lastNumero, we need the next
+      //We already have lastNumero, we need the next
+      const newNumero = this.lastNumero + 1;
+
       if (
-        this.oldRefCatastral !== this.lastRefCatastral ||
-        this.oldNumero !== this.lastNumero
+        (this.oldRefCatastral !== this.lastRefCatastral ||
+          this.oldNumero !== this.lastNumero) &&
+        !isSameList
       ) {
         this.catastroService.getNumero(
           this.getProvinciaControlValue(),
