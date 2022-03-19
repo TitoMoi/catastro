@@ -108,18 +108,36 @@ export class ExcelService {
       anchor.click();
     });
   }
-  spliBicos(bicos: Bico[]) {
+  splitBicos(bicos: Bico[]) {
     const splitedBicos: any[] = bicos.map((bico) => {
       return bico.bi.ldt.split(' ');
     });
     console.log(splitedBicos);
   }
+  filterBicos(bicos: Bico[], provincia: string, municipio: string) {
+    //remove bloque, planta, escalera, puerta
+    bicos.forEach((bico) => {
+      let ldt = bico.bi.ldt;
+      ldt = ldt.replace(/Pl:[0-9]*/, ''); //planta eliminar
+      ldt = ldt.replace(/Es:[0-9]*/, ''); //escalera eliminar
+      ldt = ldt.replace(/Bl:[0-9a-zA-Z]*/, ''); //bloque eliminar
+      ldt = ldt.replace(/\d{5}/, ''); //código postal
+      ldt = ldt.replace(provincia, ''); //provincia eliminar
+      ldt = ldt.replace(municipio, ''); //municipio eliminar
+      ldt = ldt.replace(/  +/g, ''); //espacios en blanco eliminar
+      ldt = ldt.replace(/Pt:/, ' Puerta:'); //puerta solo sustituir literal
+      ldt = ldt.replace(/[()]+/g, ''); //parentesis
+      bico.bi.ldt = ldt;
+    });
+  }
   /**
    *
    * @param bicos the array of bicos to add in the model1
    */
-  createModel1(bicos: Bico[]) {
-    const splitBicos = this.spliBicos(bicos);
+  createModel1(bicos: Bico[], provincia: string, municipio: string) {
+    const newbicos = [...bicos];
+    this.filterBicos(newbicos, provincia, municipio);
+    //const splitBicos = this.splitBicos(bicos);
 
     let workbook = this.createWorkbook();
 
@@ -129,7 +147,7 @@ export class ExcelService {
 
     this.sheet = this.addSheetA4AndPortrait(workbook);
     this.addHeaderModel1();
-    this.addBicosToSheet(bicos);
+    this.addBicosToSheet(newbicos);
     this.autoSizeColumnWidth();
     this.mergeCells('A1', 'B1');
 

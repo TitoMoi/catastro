@@ -285,7 +285,11 @@ export class AppComponent implements OnInit {
   }
 
   onSaveExcelModel1() {
-    this.excelService.createModel1(this.bicos);
+    this.excelService.createModel1(
+      this.bicos,
+      this.getProvinciaControlValue(),
+      this.getMunicipioControlValue()
+    );
   }
 
   onOrderBicos() {
