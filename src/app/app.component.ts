@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
+import { orderBy } from 'natural-orderby';
+import { cloneDeep } from 'lodash';
 import { Nump } from './models/consulta-numero.interface';
 import { Bico, Con } from './models/consulta-rc';
 import { Rcdnp } from './models/consulta-rc-list';
@@ -7,7 +9,6 @@ import { CustomNumeroInterface } from './models/custom-numero';
 import { FormFilterInterface } from './models/form-filter.interface';
 import { CatastroService } from './services/catastro.service';
 import { HttpCounterService } from './services/http-counter.service';
-import { orderBy } from 'natural-orderby';
 import { ExcelService } from './services/excel.service';
 
 @Component({
@@ -73,10 +74,15 @@ export class AppComponent implements OnInit {
     this.catastroService.getProvincias();
 
     this.form.get('provincia')!.valueChanges.subscribe((prov) => {
+      //reset municipio control value
+      this.form.get('municipio')?.setValue(undefined);
+      //get municipios
       this.catastroService.getMunicipios(prov);
     });
 
     this.form.get('municipio')!.valueChanges.subscribe((muni) => {
+      //reset calle control value
+      this.form.get('calle')?.setValue(undefined);
       this.catastroService.getVias(this.getProvinciaControlValue(), muni);
     });
 
@@ -286,7 +292,7 @@ export class AppComponent implements OnInit {
 
   onSaveExcelModel1() {
     this.excelService.createModel1(
-      this.bicos,
+      cloneDeep(this.bicos),
       this.getProvinciaControlValue(),
       this.getMunicipioControlValue()
     );

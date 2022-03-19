@@ -1,6 +1,6 @@
 {
   "name": "catastro",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "app/main.js",
   "author": {
     "name": "Moisés Medina"
@@ -32,6 +32,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "exceljs": "^4.3.0",
     "fast-xml-parser": "^4.0.7",
+    "lodash": "^4.17.21",
     "natural-orderby": "^2.0.3",
     "rxjs": "~6.6.0",
     "tslib": "^2.3.0",
@@ -47,6 +48,7 @@
     "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
     "@electron-forge/maker-zip": "^6.0.0-beta.63",
     "@types/jasmine": "~3.8.0",
+    "@types/lodash": "^4.14.180",
     "@types/node": "^12.11.1",
     "electron": "^17.1.0",
     "jasmine-core": "~3.8.0",
