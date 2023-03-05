@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { orderBy } from 'natural-orderby';
 import { cloneDeep } from 'lodash';
 import { Nump } from './models/consulta-numero.interface';
@@ -18,8 +18,8 @@ import { ExcelService } from './services/excel.service';
 })
 export class AppComponent implements OnInit {
   title: string;
-  form: FormGroup;
-  formFilter: FormGroup;
+  form: UntypedFormGroup;
+  formFilter: UntypedFormGroup;
   lastNumero: string;
   oldNumero: string;
   lastRefCatastral: string;
@@ -36,7 +36,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     public catastroService: CatastroService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     public httpCounterService: HttpCounterService,
     private excelService: ExcelService
   ) {
@@ -120,8 +120,8 @@ export class AppComponent implements OnInit {
     return this.form.get('calle')?.value;
   }
 
-  get getNumerosFormArray(): FormArray {
-    return this.form.get('numeros') as FormArray;
+  get getNumerosFormArray(): UntypedFormArray {
+    return this.form.get('numeros') as UntypedFormArray;
   }
 
   registerAddNumeroGroupControl() {
@@ -148,7 +148,7 @@ export class AppComponent implements OnInit {
           //Double security check, we can receive the lastNumero again
           if (this.lastRefCatastral !== this.oldRefCatastral) {
             //Add numeroFormGroup
-            const numeroFormGroup: FormGroup = this.formBuilder.group({
+            const numeroFormGroup: UntypedFormGroup = this.formBuilder.group({
               pnp: [numero.num.pnp],
               refCatastral: [
                 numero.pc.pc1.toString().padStart(7, '0') +
@@ -156,7 +156,7 @@ export class AppComponent implements OnInit {
               ],
               selected: [undefined],
             });
-            const fa = this.form.get('numeros') as FormArray;
+            const fa = this.form.get('numeros') as UntypedFormArray;
             fa.push(numeroFormGroup);
           }
         }
