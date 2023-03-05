@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import {
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+} from '@angular/forms';
 import { orderBy } from 'natural-orderby';
 import { cloneDeep } from 'lodash';
 import { Nump } from './models/consulta-numero.interface';
@@ -17,8 +22,7 @@ import { ExcelService } from './services/excel.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  title: string;
-  form: UntypedFormGroup;
+  title: string = 'catastro';
   formFilter: UntypedFormGroup;
   lastNumero: string;
   oldNumero: string;
@@ -34,20 +38,19 @@ export class AppComponent implements OnInit {
 
   isVisible: boolean;
 
+  form = this.formBuilder.group({
+    provincia: [undefined, Validators.required],
+    municipio: [undefined, Validators.required],
+    calle: [undefined],
+    numeros: this.formBuilder.array([]),
+  });
+
   constructor(
     public catastroService: CatastroService,
     private formBuilder: UntypedFormBuilder,
     public httpCounterService: HttpCounterService,
     private excelService: ExcelService
   ) {
-    this.title = 'catastro';
-    this.form = this.formBuilder.group({
-      provincia: [undefined],
-      municipio: [undefined],
-      calle: [undefined],
-      numeros: this.formBuilder.array([]),
-    });
-
     this.formFilter = this.formBuilder.group({
       isAparcamiento: [undefined],
       isComercial: [undefined],

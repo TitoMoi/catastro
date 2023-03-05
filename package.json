@@ -8,7 +8,7 @@
   "description": "app for the spanish catastro",
   "scripts": {
     "ng": "ng",
-    "start": "electron-forge start",
+    "start": "npm run build && electron-forge start",
     "start:electron": "electron .",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",

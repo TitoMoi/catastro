@@ -115,7 +115,9 @@
                 id="basic"
                 color="primary"
                 mat-flat-button
-                [disabled]="!!httpCounterService.pendingRequestsCount"
+                [disabled]="
+                  !!httpCounterService.pendingRequestsCount || form.invalid
+                "
               >
                 Buscar
               </button>
@@ -206,19 +208,3 @@
     </div>
   </div>
 </div>
-
-<!-- <div>
-                Licencia de uso: <span>{{ bico.bi.debi.luso }}</span>
-              </div> -->
-<!-- <div *ngFor="let con of this.bico.lcons.cons">
-                <div *ngIf="con.dt">
-                  <span class="bold-font">{{ con.lcd }}</span> - planta:
-                  {{ con.dt.lourb.loint.pt }} - puerta: {{ con.dt.lourb.loint.pu }}
-                </div>
-              </div> -->
-
-<!-- <div *ngIf="rcdnps.length">
-        <div *ngFor="let rcdnp of this.rcdnps">
-          {{ rcdnp.dt.locs.lous.lourb.dir }}
-        </div>
-      </div> -->
