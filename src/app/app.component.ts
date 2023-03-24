@@ -86,7 +86,9 @@ export class AppComponent implements OnInit {
     this.form.get('municipio')!.valueChanges.subscribe((muni) => {
       //reset calle control value
       this.form.get('calle')?.setValue(undefined);
-      this.catastroService.getVias(this.getProvinciaControlValue(), muni);
+      if (muni) {
+        this.catastroService.getVias(this.getProvinciaControlValue(), muni);
+      }
     });
 
     this.form.get('calle')!.valueChanges.subscribe((calle) => {
