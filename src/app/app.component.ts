@@ -6,7 +6,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { orderBy } from 'natural-orderby';
-import { cloneDeep } from 'lodash';
 import { Nump } from './models/consulta-numero.interface';
 import { Bico, Con } from './models/consulta-rc';
 import { Rcdnp } from './models/consulta-rc-list';
@@ -131,6 +130,17 @@ export class AppComponent implements OnInit {
 
   registerAddNumeroGroupControl() {
     this.catastroService.numeros$.subscribe((numeros: Nump[]) => {
+      //find duplicates, same number and same ref.catastral and remove them
+      numeros = numeros.filter(
+        (value, index, self) =>
+          index ===
+          self.findIndex(
+            (t) =>
+              t.num.pnp === value.num.pnp &&
+              t.pc.pc1 === value.pc.pc1 &&
+              t.pc.pc2 === value.pc.pc2
+          )
+      );
       let isSameList = false;
       if (
         numeros.every((numero) => this.lastNumeros.includes(numero.num.pnp))
@@ -297,7 +307,7 @@ export class AppComponent implements OnInit {
 
   onSaveExcelModel1() {
     this.excelService.createModel1(
-      cloneDeep(this.bicos),
+      structuredClone(this.bicos),
       this.getProvinciaControlValue(),
       this.getMunicipioControlValue()
     );
